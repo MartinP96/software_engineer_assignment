@@ -11,7 +11,11 @@ from encoder_interface import EncoderInterface
 
 if __name__ == '__main__':
 
-    encoder_interface = EncoderInterface('COM8')
+    biss_bits_len = 64
+    biss_mt_len = 16
+    biss_st_len = 19
+
+    encoder_interface = EncoderInterface(biss_bits_len, biss_mt_len, biss_st_len)
 
     while 1:
 
