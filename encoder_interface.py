@@ -22,8 +22,6 @@ class EncoderInterface:
         self._mt_num_of_bits = mt_bit_len
         self._st_num_of_bits = st_bit_len
 
-        self.connect_interface()
-
     # Public methods
 
     def connect_interface(self):
@@ -64,16 +62,18 @@ class EncoderInterface:
         biss_data = self._read_biss_data()
 
         # Extract position bits MT + ST
-        mt = self._extract_bits(biss_data, self._mt_num_of_bits, 49)  # TODO: Quick Solution, needs to be tested
-        if mt > 65536 / 2:
-            mt = mt - 65536
-
+        mt = self._extract_bits(biss_data, self._mt_num_of_bits, 49)
+        mt = self._unsigned_to_signed_val(mt)
         st = self._extract_bits(biss_data, self._st_num_of_bits, 30)
         st_deg = st * (360 / (2 ** 19)) + (360 * mt)
 
-        # TODO: Extract error and warning status
+        # Extract Error and Warning bits
+        error = 0
+        warning = 0
+        error = self._extract_bits(biss_data, 1, 29)
+        warning = self._extract_bits(biss_data, 1, 28)
 
-        return mt, st_deg
+        return mt, st_deg, error, warning
 
     # Private methods
 
@@ -102,3 +102,9 @@ class EncoderInterface:
 
     def _extract_bits(self, in_value, num_of_bits, position):
         return ((1 << num_of_bits) - 1) & (in_value >> (position - 1))
+
+    def _unsigned_to_signed_val(self, val_in):
+        val_out = val_in
+        if val_in > 65536 / 2:
+            val_out = val_in - 65536
+        return val_out

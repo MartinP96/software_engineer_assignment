@@ -16,9 +16,11 @@ if __name__ == '__main__':
     biss_st_len = 19
 
     encoder_interface = EncoderInterface(biss_bits_len, biss_mt_len, biss_st_len)
+    encoder_interface.connect_interface()
 
     while 1:
 
         encoder_data = encoder_interface.read_encoder_data()
-        print(f"MT = {encoder_data[0]}, ST = {encoder_data[1]}°")
+        print(f"MT = {encoder_data[0]}, ST = {encoder_data[1]}°, error = {encoder_data[2]}, warning = {encoder_data[3]}")
         time.sleep(0.1)
+
