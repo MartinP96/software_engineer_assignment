@@ -23,4 +23,3 @@ if __name__ == '__main__':
         encoder_data = encoder_interface.read_encoder_data()
         print(f"MT = {encoder_data[0]}, ST = {encoder_data[1]}°, error = {encoder_data[2]}, warning = {encoder_data[3]}")
         time.sleep(0.1)
-
