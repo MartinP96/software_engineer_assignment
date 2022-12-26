@@ -1,8 +1,25 @@
+"""
+    File name: serial_interface.py
+    Date: 26.12.2022
+    Desc: Interface for serial communication
+"""
+
 import time
 import serial.tools.list_ports
 import serial
 
 class SerialInterface:
+    """
+    SerialInterface class for serial communication via virtual com port.
+
+    Args:
+        response_delay_time(float): delay time [in seconds] when between writing and reading data from serial port
+
+    Attributes:
+        serial_port_num(str): number of connected serial port
+        _serial_com (serial): serial com object
+        _respone_delay_time (float): delay time [in seconds] when between writing and reading data from serial port
+    """
 
     # Public variables
     serial_port_num: str
@@ -16,6 +33,11 @@ class SerialInterface:
         self._respone_delay_time = response_delay_time
 
     def scan_ports(self):
+        """
+        Scan for all used com ports
+        args: /
+        return: list of all found com ports
+        """
         ports = serial.tools.list_ports.comports()
         discovered_ports = []
         for port, desc, hwid in sorted(ports):
@@ -24,6 +46,11 @@ class SerialInterface:
         return discovered_ports
 
     def connect_port(self, port):
+        """
+        Connect to input port
+        args: Port to connect
+        return: response - 1 connected, -1 not connected (error)
+        """
         try:
             self._serial_com = serial.Serial(port, write_timeout=0.5)
             response = 1
@@ -32,15 +59,24 @@ class SerialInterface:
         return response
 
     def disconnect_port(self):
+        """
+        Close connected port
+        args: /
+        return: /
+        """
         self._serial_com.close()
 
     def write_command(self, cmd):
+        """
+        Write comman to serial port
+        args: cmd
+        return: response: 1 ok, -1 failed
+        """
         try:
             self._serial_com.write(cmd)
             time.sleep(self._respone_delay_time)
             bytes_to_read = self._serial_com.inWaiting()
             response = self._serial_com.read(bytes_to_read)
-        except serial.SerialTimeoutException:
+        except (serial.SerialTimeoutException, serial.SerialException):
             response = -1
-            pass
         return response

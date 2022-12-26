@@ -1,4 +1,3 @@
-
 '''
     File name: main.py
     Version: v0.1
@@ -16,10 +15,22 @@ if __name__ == '__main__':
     biss_st_len = 19
 
     encoder_interface = EncoderInterface(biss_bits_len, biss_mt_len, biss_st_len)
-    encoder_interface.connect_interface()
+    response = encoder_interface.connect_interface()
 
-    while 1:
+    if response == 1:
+        while 1:
 
-        encoder_data = encoder_interface.read_encoder_data()
-        print(f"MT = {encoder_data[0]}, ST = {encoder_data[1]}°, error = {encoder_data[2]}, warning = {encoder_data[3]}")
-        time.sleep(0.1)
+            encoder_data = encoder_interface.read_encoder_data()
+
+            if encoder_data == -1:
+                # Test connection to encoder
+                encoder_interface.disconnect_interface()
+                response = encoder_interface.connect_interface()
+                if response != 1:
+                    print("Encoder not found, ending the program!")
+                    break
+
+            print(f"MT = {encoder_data[0]}, ST = {encoder_data[1]}°, error = {encoder_data[2]}, warning = {encoder_data[3]}")
+            time.sleep(0.1)
+    else:
+        print("Encoder not found, ending the program!")
