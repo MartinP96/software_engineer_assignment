@@ -1,4 +1,4 @@
-import time
+import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
 from encoder_interface import EncoderInterface
@@ -14,12 +14,10 @@ class EncoderControlTask(QObject):
 
     encoder_stop_reading = pyqtSignal(int)
 
-    def __init__(self, test):
+    def __init__(self):
         super(EncoderControlTask, self).__init__()
 
         self.interface = EncoderInterface(64, 16, 19)
-        self.test = test
-
         self.poller = QTimer(self)
         self.poller.timeout.connect(self.read_data)
 
@@ -76,7 +74,22 @@ class UiMainWindow(QObject):
         self.disconnect_button = Button("disconnect_button", self.centralwidget, (160, 20, 131, 28), "DISCONNECT", self.disconnect_encoder, False)
 
         # Graph object
-        self.position_plot = LineGraph(main_window, "Position", 0.1, 1000, "Time [s]", "Position [°]", (20, 120, 700, 450))
+        self.position_plot = LineGraph(main_window, "Position", 0.1, 1000, "Time [s]", "Position [°]", (20, 115-20, 680, 480))
+
+        # Alarm Display
+        self.AlarmDisplay = QtWidgets.QTextBrowser(self.centralwidget)
+        self.AlarmDisplay.setGeometry(QtCore.QRect(720, 145-20, 191, 405))
+        self.AlarmDisplay.setObjectName("AlarmDisplay")
+        self.AlarmDisplay.setStyleSheet(
+            "border-top: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
+            "border-left: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
+            "border-right: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
+            "border-bottom: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
+            "background-color: rgb(226, 226, 226);")
 
         # Main window
         main_window.setCentralWidget(self.centralwidget)
@@ -89,7 +102,7 @@ class UiMainWindow(QObject):
     def run_encoder_task(self):
 
         self.thread = QThread()
-        self.worker = EncoderControlTask("This is a test!")
+        self.worker = EncoderControlTask()
         self.worker.moveToThread(self.thread)
 
         # Slots and Signals
@@ -97,9 +110,8 @@ class UiMainWindow(QObject):
         self.encoder_disconnect_signal.connect(self.worker.disconnect_encoder)
         self.encoder_enable_signal.connect(self.worker.enable_encoder)
         self.encoder_disable_signal.connect(self.worker.disable_encoder)
-
         self.worker.encoder_info_signal.connect(self.display_encoder_connection_status)
-        self.worker.encoder_data_signal.connect(self.display_encoder_data)
+        self.worker.encoder_data_signal.connect(self.get_encoder_data)
         self.thread.start()
 
     def connect_to_encoder(self):
@@ -145,9 +157,22 @@ class UiMainWindow(QObject):
             self.connect_button.setEnabled(True)
             self.disconnect_button.setEnabled(False)
 
-    def display_encoder_data(self, data):
-        self.mt_pos_indicator.set_indicator_value(str(data[0]))
-        pos_str = f"{str(round(data[1], 4))}°"
-        self.st_pos_indicator.set_indicator_value(pos_str)
-        self.position_plot.update_graph(data[1])
+    def get_encoder_data(self, data):
 
+        if data[2] == 1 and data[3] == 1:
+            self.mt_pos_indicator.set_indicator_value(str(data[0]))
+            pos_str = f"{str(round(data[1], 4))}°"
+            self.st_pos_indicator.set_indicator_value(pos_str)
+            self.position_plot.update_graph(data[1])
+        else:
+            self.mt_pos_indicator.set_indicator_value("")
+            self.st_pos_indicator.set_indicator_value("")
+
+            # Handle Encoder Errors/Warning
+            # Error
+            if data[2] == 0:
+                self.AlarmDisplay.append(f"Error\n{datetime.datetime.now()}\n")
+
+            # Warning
+            if data[3] == 0:
+                self.AlarmDisplay.append(f"Warning\n{datetime.datetime.now()}\n")
