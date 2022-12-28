@@ -20,17 +20,11 @@ class SerialInterface:
         _serial_com (serial): serial com object
         _respone_delay_time (float): delay time [in seconds] when between writing and reading data from serial port
     """
-
-    # Public variables
-    serial_port_num: str
-
-    # Private variables
-    _serial_com: serial
-    _respone_delay_time: float
-
     # Constructor
     def __init__(self, response_delay_time):
         self._respone_delay_time = response_delay_time
+        self.serial_port_num = ""
+        self._serial_com = None
 
     def scan_ports(self):
         """

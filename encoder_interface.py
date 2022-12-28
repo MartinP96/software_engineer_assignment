@@ -24,20 +24,13 @@ class EncoderInterface:
         _serial_interface(int): Serial interface class for serial com
     """
 
-    # Public attributes
-    serial_port_num: str
-    interface_version: str
-
-    # Private attributes
-    _biss_packet_len: int
-    _mt_num_of_bits: int
-    _st_num_of_bits: int
-    _serial_interface: SerialInterface
-
     # Constructor
     def __init__(self, biss_packet_len, mt_bit_len, st_bit_len):
 
         self._serial_interface = SerialInterface(0.01)
+
+        self.serial_port_num = ""
+        self.interface_version = ""
 
         # Set biss packet parameters
         self._biss_packet_len = biss_packet_len
