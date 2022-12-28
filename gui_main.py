@@ -1,6 +1,6 @@
 import time
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
 from encoder_interface import EncoderInterface
 
 # Widget Classes
@@ -66,6 +66,44 @@ class Button(QtWidgets.QPushButton):
         self.clicked.connect(method)
         self.setEnabled(enabled)
         self.setVisible(visibility)
+
+
+class EncoderControlTask(QObject):
+
+    encoder_connection_signal = pyqtSignal(int)
+    encoder_info_signal = pyqtSignal(dict)
+    encoder_data_signal = pyqtSignal(tuple)
+
+    encoder_stop_reading = pyqtSignal(int)
+
+    def __init__(self, test):
+        super(EncoderControlTask, self).__init__()
+
+        self.interface = EncoderInterface(64, 16, 19)
+        self.test = test
+
+        self.poller = QTimer(self)
+        self.poller.timeout.connect(self.read_data)
+
+    def enable_encoder(self, val):
+        self.poller.start(100)
+
+    def disable_encoder(self):
+        self.poller.stop()
+
+    def connect_encoder(self, val):
+        response = self.interface.connect_interface()
+        if response != -1:
+            self.encoder_info_signal.emit(response)
+        else:
+            self.encoder_info_signal.emit(-1)
+
+    def disconnect_encoder(self, val):
+        self.interface.disconnect_interface()
+
+    def read_data(self):
+        data = self.interface.read_encoder_data()
+        self.encoder_data_signal.emit(data)
 
 class UiMainWindow(QObject):
 
