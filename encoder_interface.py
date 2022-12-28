@@ -70,22 +70,23 @@ class EncoderInterface:
         """
 
         discovered_ports = self._serial_interface.scan_ports()
-        response = 0
+        response = {}
         # Test all ports if encoder connected
         for com_port in discovered_ports:
-            response = self._serial_interface.connect_port(com_port['port'])
-
-            if response == 1:
+            connection_status = self._serial_interface.connect_port(com_port['port'])
+            response = {"com_port":"", "version": "", "status": "not_connected"}
+            if connection_status == 1:
                 # Test if encoder is connected
                 version = self._serial_interface.write_command(b'v')
                 if version == b'' or version == -1:
                     self._serial_interface.disconnect_port()
-                    response = -1
                 else:
-                    self.interface_version = str(version)
+                    self.interface_version = str(version).replace("b'", "").replace(chr(92), "").replace("r'", "")
                     self.serial_port_num = com_port['port']
                     print(f"Connected to encoder: {self.interface_version} on Port: {self.serial_port_num}")
-                    response = 1
+                    response["com_port"] = com_port['port']
+                    response["version"] = self.interface_version
+                    response["status"] = "connected"
                     break
         return response
 
@@ -127,7 +128,7 @@ class EncoderInterface:
         response = self._serial_interface.write_command(b'4')
         biss_data = -1
         if response != -1:
-            biss_data = "0x" + str(response)[2:18]
+            biss_data = "0x" + str(response).replace("b'", "").replace(chr(92), "").replace("r'", "")
             biss_data = int(biss_data, 16)
         return biss_data
 

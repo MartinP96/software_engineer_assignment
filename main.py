@@ -17,7 +17,7 @@ if __name__ == '__main__':
     encoder_interface = EncoderInterface(biss_bits_len, biss_mt_len, biss_st_len)
     response = encoder_interface.connect_interface()
 
-    if response == 1:
+    if response["status"] == "connected":
         while 1:
 
             encoder_data = encoder_interface.read_encoder_data()
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                 # Test connection to encoder
                 encoder_interface.disconnect_interface()
                 response = encoder_interface.connect_interface()
-                if response != 1:
+                if response["status"] != "connected":
                     print("Encoder not found, ending the program!")
                     break
 
