@@ -3,70 +3,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
 from encoder_interface import EncoderInterface
 
-# Widget Classes
-
-class ValueIndicator:
-
-    # Constructor
-    def __init__(self, object_name, parent, dimensions, font_size, text_aligment=QtCore.Qt.AlignCenter):
-        self.object_name = object_name
-        self.indicator = QtWidgets.QLabel(parent)
-        self.indicator.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
-        font = QtGui.QFont()
-        font.setPointSize(font_size)
-        self.indicator.setFont(font)
-        self.indicator.setAutoFillBackground(False)
-        self.indicator.setStyleSheet(
-            "border-top: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
-            "border-left: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
-            "border-right: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
-            "border-bottom: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
-            "background-color: rgb(226, 226, 226);")
-        self.indicator.setAlignment(text_aligment)
-        self.indicator.setObjectName(object_name)
-        self.indicator.setText("0")
-
-    # Methods
-    def set_indicator_value(self, value):
-        self.indicator.setText(value)
-
-class Label:
-    # Constructor
-    def __init__(self, object_name, parent, dimensions, font_size, label_text):
-        self.object_name = object_name
-        self.label = QtWidgets.QLabel(parent)
-        self.label.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
-        font = QtGui.QFont()
-        font.setPointSize(font_size)
-        self.label.setFont(font)
-        self.label.setObjectName(object_name)
-        self.label.setText(label_text)
-
-class Label_2(QtWidgets.QLabel):
-    def __init__(self, object_name, parent, dimensions, font_size, label_text):
-        super(Label_2, self).__init__(parent)
-        self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
-        font = QtGui.QFont()
-        font.setPointSize(font_size)
-        self.setFont(font)
-        self.setObjectName(object_name)
-        self.setText(label_text)
-
-class Button(QtWidgets.QPushButton):
-    # Constructor
-    def __init__(self, object_name, parent, dimensions, text, method, enabled=True, visibility=True):
-        super(Button, self).__init__(parent)
-        self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
-        self.setObjectName(object_name)
-        self.setText(text)
-        self.clicked.connect(method)
-        self.setEnabled(enabled)
-        self.setVisible(visibility)
-
+from gui_components import ValueIndicator, Label, Button
 
 class EncoderControlTask(QObject):
 
