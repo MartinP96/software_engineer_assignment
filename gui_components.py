@@ -23,7 +23,7 @@ class ValueIndicator(QtWidgets.QLabel):
             "background-color: rgb(226, 226, 226);")
         self.setAlignment(text_aligment)
         self.setObjectName(object_name)
-        self.setText("0")
+        self.setText("")
 
     # Methods
     def set_indicator_value(self, value):

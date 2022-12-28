@@ -2,6 +2,7 @@ import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
 from encoder_interface import EncoderInterface
+import pyqtgraph as pg
 
 from gui_components import ValueIndicator, Label, Button
 
@@ -74,6 +75,21 @@ class UiMainWindow(QObject):
         self.connect_button = Button("connect_button", self.centralwidget, (20, 20, 131, 28), "CONNECT", self.connect_to_encoder, True)
         self.disconnect_button = Button("disconnect_button", self.centralwidget, (160, 20, 131, 28), "DISCONNECT", self.disconnect_encoder, False)
 
+        # Graph object
+        self.x = [0]
+        self.y = [0]
+        self.position_plot = pg.PlotWidget(main_window)
+        self.position_plot.setGeometry(20, 120, 700, 450)
+        self.position_plot.setBackground('w')
+        pen = pg.mkPen(color=(255, 0, 0))
+        #self.my_plot.plot(self.x, self.y, pen=pen)
+        self.data_line = self.position_plot.plot(self.x, self.y, pen=pen)
+        self.position_plot.setTitle("Position")
+        styles = {'color': 'r', 'font-size': '20px'}
+        self.position_plot.setLabel('left', 'Position [°]', **styles)
+        self.position_plot.setLabel('bottom', 'Sample [k]', **styles)
+        self.position_plot.showGrid(x=True, y=True)
+
         # Main window
         main_window.setCentralWidget(self.centralwidget)
         main_window.setWindowTitle("Encoder Interface")
@@ -94,10 +110,6 @@ class UiMainWindow(QObject):
         self.encoder_enable_signal.connect(self.worker.enable_encoder)
         self.encoder_disable_signal.connect(self.worker.disable_encoder)
 
-        # self.thread.started.connect(self.worker.connect)
-        # self.thread.started.connect(self.worker.read_data)
-
-        # Signals
         self.worker.encoder_info_signal.connect(self.display_encoder_connection_status)
         self.worker.encoder_data_signal.connect(self.display_encoder_data)
 
@@ -125,6 +137,8 @@ class UiMainWindow(QObject):
         self.enable_encoder_button.setEnabled(True)
         self.disable_encoder_button.setEnabled(False)
         self.disconnect_button.setEnabled(True)
+        self.mt_pos_indicator.set_indicator_value("")
+        self.st_pos_indicator.set_indicator_value("")
         self.encoder_disable_signal.emit(1)
 
     def display_encoder_connection_status(self, data):
@@ -145,3 +159,14 @@ class UiMainWindow(QObject):
         self.mt_pos_indicator.set_indicator_value(str(data[0]))
         pos_str = f"{str(round(data[1], 4))}°"
         self.st_pos_indicator.set_indicator_value(pos_str)
+
+        if len(self.x[1:]) > 1000:
+            self.x = self.x[1:]  # Remove the first y element.
+            self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
+            self.y = self.y[1:]  # Remove the first
+            self.y.append(data[1])  # Add a new random value.
+        else:
+            self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
+            self.y.append(data[1])  # Add a new random value.
+
+        self.data_line.setData(self.x, self.y)  # Update the data.
