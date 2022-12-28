@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+import pyqtgraph
 
 class ValueIndicator(QtWidgets.QLabel):
 
@@ -49,3 +50,33 @@ class Button(QtWidgets.QPushButton):
         self.clicked.connect(method)
         self.setEnabled(enabled)
         self.setVisible(visibility)
+
+class LineGraph(pyqtgraph.PlotWidget):
+    def __init__(self, parent, title, buffer_size):
+        super(LineGraph, self).__init__(parent)
+
+        self.buffer_size = buffer_size
+        self.x_data = [0]
+        self.y_data = [0]
+
+        #self.plot = self.PlotWidget(parent)
+        self.setGeometry(20, 120, 700, 450)
+        self.setBackground('w')
+        pen = pyqtgraph.mkPen(color=(255, 0, 0))
+        self.data_line = self.plot(self.x_data, self.y_data, pen=pen)
+        self.setTitle(title)
+        styles = {'color': 'r', 'font-size': '20px'}
+        self.setLabel('left', 'Position [°]', **styles)
+        self.setLabel('bottom', 'Sample [k]', **styles)
+        self.showGrid(x=True, y=True)
+
+    def update_graph(self, new_y_value):
+        if len(self.x_data[1:]) > self.buffer_size:
+            self.x = self.x_data[1:]  # Remove the first y element.
+            self.x_data.append(self.x_data[-1] + 1)  # Add a new value 1 higher than the last.
+            self.y = self.y_data[1:]  # Remove the first
+            self.y.append(new_y_value)  # Add a new random value.
+        else:
+            self.x_data.append(self.x_data[-1] + 1)  # Add a new value 1 higher than the last.
+            self.y_data.append(new_y_value)  # Add a new random value.
+        self.data_line.setData(self.x_data, self.y_data)  # Update the data.
