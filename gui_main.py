@@ -110,6 +110,7 @@ class UiMainWindow(QObject):
     encoder_connect_signal = pyqtSignal(int)
     encoder_disconnect_signal = pyqtSignal(int)
     encoder_enable_signal = pyqtSignal(int)
+    encoder_disable_signal = pyqtSignal(int)
 
     # Constructor
     def __init__(self, main_window):
@@ -131,14 +132,79 @@ class UiMainWindow(QObject):
         self.device_indicator = ValueIndicator("device_indicator", self.centralwidget, (660, 10, 121, 31), 9)
 
         # Button objects
-        self.enable_encoder_button = Button("enable_button", self.centralwidget, (20, 60, 131, 28), "ENABLE ENCODER", self.test_print_msg, True, False)
-        self.disable_encoder_button = Button("disable_button", self.centralwidget, (160, 60, 131, 28), "DISABLE ENCODER", self.test_print_msg, False, False)
-        self.connect_button = Button("connect_button", self.centralwidget, (20, 20, 131, 28), "CONNECT", self.test_print_msg, True)
-        self.disconnect_button = Button("disconnect_button", self.centralwidget, (160, 20, 131, 28), "DISCONNECT", self.test_print_msg, False)
+        self.enable_encoder_button = Button("enable_button", self.centralwidget, (20, 60, 131, 28), "ENABLE ENCODER", self.enable_encoder, True, False)
+        self.disable_encoder_button = Button("disable_button", self.centralwidget, (160, 60, 131, 28), "DISABLE ENCODER", self.disable_encoder, False, False)
+        self.connect_button = Button("connect_button", self.centralwidget, (20, 20, 131, 28), "CONNECT", self.connect_to_encoder, True)
+        self.disconnect_button = Button("disconnect_button", self.centralwidget, (160, 20, 131, 28), "DISCONNECT", self.disconnect_encoder, False)
 
         # Main window
         main_window.setCentralWidget(self.centralwidget)
         main_window.setWindowTitle("Encoder Interface")
 
-    def test_print_msg(self):
-        print("Button clicked!")
+        # Start thread tasks
+        self.run_encoder_task()
+
+    # Methods
+    def run_encoder_task(self):
+
+        self.thread = QThread()
+        self.worker = EncoderControlTask("This is a test!")
+        self.worker.moveToThread(self.thread)
+
+        # Slots and Signals
+        self.encoder_connect_signal.connect(self.worker.connect_encoder)
+        self.encoder_disconnect_signal.connect(self.worker.disconnect_encoder)
+        self.encoder_enable_signal.connect(self.worker.enable_encoder)
+        self.encoder_disable_signal.connect(self.worker.disable_encoder)
+
+        # self.thread.started.connect(self.worker.connect)
+        # self.thread.started.connect(self.worker.read_data)
+
+        # Signals
+        self.worker.encoder_info_signal.connect(self.display_encoder_connection_status)
+        self.worker.encoder_data_signal.connect(self.display_encoder_data)
+
+        self.thread.start()
+
+    def connect_to_encoder(self):
+        self.connect_button.setEnabled(False)
+        self.disconnect_button.setEnabled(True)
+        self.encoder_connect_signal.emit(1)
+
+    def disconnect_encoder(self):
+        self.connect_button.setEnabled(True)
+        self.disconnect_button.setEnabled(False)
+        self.encoder_disconnect_signal.emit(1)
+        self.com_port_indicator.set_indicator_value("")
+        self.device_indicator.set_indicator_value("")
+
+    def enable_encoder(self):
+        self.enable_encoder_button.setEnabled(False)
+        self.disable_encoder_button.setEnabled(True)
+        self.disconnect_button.setEnabled(False)
+        self.encoder_enable_signal.emit(1)
+
+    def disable_encoder(self):
+        self.enable_encoder_button.setEnabled(True)
+        self.disable_encoder_button.setEnabled(False)
+        self.disconnect_button.setEnabled(True)
+        self.encoder_disable_signal.emit(1)
+
+    def display_encoder_connection_status(self, data):
+        if data["status"] == "connected":
+            self.com_port_indicator.set_indicator_value(data["com_port"])
+            self.device_indicator.set_indicator_value(data["version"])
+            self.connect_button.setEnabled(False)
+            self.disconnect_button.setEnabled(True)
+            self.enable_encoder_button.setVisible(True)
+            self.disable_encoder_button.setVisible(True)
+        else:
+            self.com_port_indicator.set_indicator_value("")
+            self.device_indicator.set_indicator_value("")
+            self.connect_button.setEnabled(True)
+            self.disconnect_button.setEnabled(False)
+
+    def display_encoder_data(self, data):
+        self.mt_pos_indicator.set_indicator_value(str(data[0]))
+        pos_str = f"{str(round(data[1], 4))}°"
+        self.st_pos_indicator.set_indicator_value(pos_str)
