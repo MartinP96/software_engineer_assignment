@@ -1,14 +1,15 @@
+import datetime
 
 class Alarm:
     def __init__(self, alarm_name, inverted=False, trigger_mode="state"):
         self.alarm_name = alarm_name
-        self.alarm_value = 0
+        self.alarm_out = 0
 
         self._trigger_mode = trigger_mode
         self._inverted = inverted
         self._input_current_value = 0
 
-    def monitor_alarm(self, input_val):
+    def monitor_alarm(self, input_val: int):
 
         alarm_out = 0
 
@@ -33,7 +34,22 @@ class Alarm:
                 alarm_out = 1
 
         self._input_current_value = value
-        self.alarm_value = alarm_out
+        self.alarm_out = alarm_out
 
         return alarm_out
 
+class AlarmLogger:
+
+    def __init__(self, log_path: str):
+        self.log_file_path = log_path
+        self.log_file = open(log_path, 'w')
+
+    def __del__(self):
+        self.log_file.close()
+
+    def log_alarm(self, alarm: Alarm):
+
+        if alarm.alarm_out == 1:
+            #Alarm string
+            alm_str = f"{alarm.alarm_name} @ {datetime.datetime.now()}\n"
+            self.log_file.write(alm_str)

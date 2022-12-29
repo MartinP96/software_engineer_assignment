@@ -83,3 +83,21 @@ class LineGraph(pyqtgraph.PlotWidget):
 
     def clear_graph(self):
         self.data_line.clear()
+
+class AlarmDisplay(QtWidgets.QTextBrowser):
+
+    def __init__(self, object_name, parent, dimensions):
+        super(AlarmDisplay, self).__init__(parent)
+        # Alarm Display
+        self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
+        self.setObjectName(object_name)
+        self.setStyleSheet(
+            "border-top: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
+            "border-left: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
+            "border-right: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
+            "border-bottom: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
+            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
+            "background-color: rgb(226, 226, 226);")

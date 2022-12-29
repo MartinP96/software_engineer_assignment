@@ -1,17 +1,15 @@
 import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
-
 from encoder_interface import EncoderInterface
-from gui_components import ValueIndicator, Label, Button, LineGraph
-from gui_alarm_module import Alarm
+from gui_components import ValueIndicator, Label, Button, LineGraph, AlarmDisplay
+from gui_alarm_module import Alarm, AlarmLogger
 
 class EncoderControlTask(QObject):
 
     encoder_connection_signal = pyqtSignal(int)
     encoder_info_signal = pyqtSignal(dict)
     encoder_data_signal = pyqtSignal(tuple)
-
     encoder_stop_reading = pyqtSignal(int)
 
     def __init__(self):
@@ -77,23 +75,12 @@ class UiMainWindow(QObject):
         self.position_plot = LineGraph(main_window, "Position", 0.1, 1000, "Time [s]", "Position [°]", (20, 115-20, 680, 480))
 
         # Alarm Display
-        self.AlarmDisplay = QtWidgets.QTextBrowser(self.centralwidget)
-        self.AlarmDisplay.setGeometry(QtCore.QRect(720, 145-20, 191, 405))
-        self.AlarmDisplay.setObjectName("AlarmDisplay")
-        self.AlarmDisplay.setStyleSheet(
-            "border-top: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
-            "border-left: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(64, 64, 64, 255));\n"
-            "border-right: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
-            "border-bottom: 2px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1,\n"
-            "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
-            "background-color: rgb(226, 226, 226);")
+        self.alarm_display = AlarmDisplay("alarm_display", self.centralwidget, (720, 145-20, 191, 405))
 
         # Alarms
-        self.alarm_error = Alarm("Encoder Error", True, "rising")
-        self.alarm_warning = Alarm("Encoder Warning", True, "rising")
+        self.alarm_logger = AlarmLogger("alarm_log.txt")
+        self.alarm_error = Alarm(alarm_name="Encoder Error", inverted=True, trigger_mode="rising")
+        self.alarm_warning = Alarm(alarm_name="Encoder Warning", inverted=True, trigger_mode="rising")
 
         # Main window
         main_window.setCentralWidget(self.centralwidget)
@@ -145,7 +132,6 @@ class UiMainWindow(QObject):
         self.mt_pos_indicator.set_indicator_value("")
         self.st_pos_indicator.set_indicator_value("")
         self.encoder_disable_signal.emit(1)
-        self.position_plot.clear_graph()
 
     def display_encoder_connection_status(self, data):
         if data["status"] == "connected":
@@ -171,10 +157,13 @@ class UiMainWindow(QObject):
         self.st_pos_indicator.set_indicator_value(pos_str)
         self.position_plot.update_graph(data[1])
 
+        self.alarm_logger.log_alarm(self.alarm_error)
+        self.alarm_logger.log_alarm(self.alarm_warning)
+
         # Error
         if error == 1:
-            self.AlarmDisplay.append(f"Error\n{datetime.datetime.now()}\n")
+            self.alarm_display.append(f"Error\n{datetime.datetime.now()}\n")
 
         # Warning
         if warning == 1:
-            self.AlarmDisplay.append(f"Warning\n{datetime.datetime.now()}\n")
+            self.alarm_display.append(f"Warning\n{datetime.datetime.now()}\n")
