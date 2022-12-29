@@ -71,11 +71,11 @@ class LineGraph(pyqtgraph.PlotWidget):
         self.showGrid(x=True, y=True)
 
     def update_graph(self, new_y_value):
-        if len(self.x_data[1:]) > self.buffer_size:
-            self.x = self.x_data[1:]  # Remove the first y element.
+        if len(self.x_data[1:]) >= self.buffer_size:
+            self.x_data = self.x_data[1:]  # Remove the first y element.
             self.x_data.append(self.x_data[-1] + self.sampling_time)  # Add a new value 1 higher than the last.
-            self.y = self.y_data[1:]  # Remove the first
-            self.y.append(new_y_value)  # Add a new random value.
+            self.y_data = self.y_data[1:]  # Remove the first
+            self.y_data.append(new_y_value)  # Add a new random value.
         else:
             self.x_data.append(self.x_data[-1] + self.sampling_time)  # Add a new value 1 higher than the last.
             self.y_data.append(new_y_value)  # Add a new random value.

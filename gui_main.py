@@ -92,8 +92,8 @@ class UiMainWindow(QObject):
             "background-color: rgb(226, 226, 226);")
 
         # Alarms
-        self.alarm_error = Alarm("Error", True, "rising")
-        self.alarm_warning = Alarm("Warning", True, "falling")
+        self.alarm_error = Alarm("Encoder Error", True, "rising")
+        self.alarm_warning = Alarm("Encoder Warning", True, "rising")
 
         # Main window
         main_window.setCentralWidget(self.centralwidget)
