@@ -1,10 +1,10 @@
 import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
-from encoder_interface import EncoderInterface
-import pyqtgraph as pg
 
+from encoder_interface import EncoderInterface
 from gui_components import ValueIndicator, Label, Button, LineGraph
+from gui_alarm_module import Alarm
 
 class EncoderControlTask(QObject):
 
@@ -91,6 +91,10 @@ class UiMainWindow(QObject):
             "stop:0 rgba(192, 192, 192, 255), stop:1 rgba(255, 255, 255, 255));\n"
             "background-color: rgb(226, 226, 226);")
 
+        # Alarms
+        self.alarm_error = Alarm("Error", True, "rising")
+        self.alarm_warning = Alarm("Warning", True, "falling")
+
         # Main window
         main_window.setCentralWidget(self.centralwidget)
         main_window.setWindowTitle("Encoder Interface")
@@ -159,20 +163,18 @@ class UiMainWindow(QObject):
 
     def get_encoder_data(self, data):
 
-        if data[2] == 1 and data[3] == 1:
-            self.mt_pos_indicator.set_indicator_value(str(data[0]))
-            pos_str = f"{str(round(data[1], 4))}°"
-            self.st_pos_indicator.set_indicator_value(pos_str)
-            self.position_plot.update_graph(data[1])
-        else:
-            self.mt_pos_indicator.set_indicator_value("")
-            self.st_pos_indicator.set_indicator_value("")
+        error = self.alarm_error.monitor_alarm(data[2])
+        warning = self.alarm_warning.monitor_alarm(data[3])
 
-            # Handle Encoder Errors/Warning
-            # Error
-            if data[2] == 0:
-                self.AlarmDisplay.append(f"Error\n{datetime.datetime.now()}\n")
+        self.mt_pos_indicator.set_indicator_value(str(data[0]))
+        pos_str = f"{str(round(data[1], 4))}°"
+        self.st_pos_indicator.set_indicator_value(pos_str)
+        self.position_plot.update_graph(data[1])
 
-            # Warning
-            if data[3] == 0:
-                self.AlarmDisplay.append(f"Warning\n{datetime.datetime.now()}\n")
+        # Error
+        if error == 1:
+            self.AlarmDisplay.append(f"Error\n{datetime.datetime.now()}\n")
+
+        # Warning
+        if warning == 1:
+            self.AlarmDisplay.append(f"Warning\n{datetime.datetime.now()}\n")
