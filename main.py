@@ -1,4 +1,3 @@
-
 '''
     File name: main.py
     Version: v0.1
@@ -8,13 +7,15 @@
 
 import time
 from encoder_interface import EncoderInterface
+from gui_main import UiMainWindow
+
+import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    main_window = QtWidgets.QMainWindow()
+    ui = UiMainWindow(main_window)
+    main_window.show()
+    sys.exit(app.exec_())
 
-    encoder_interface = EncoderInterface('COM8')
-
-    while 1:
-
-        encoder_data = encoder_interface.read_encoder_data()
-        print(f"MT = {encoder_data[0]}, ST = {encoder_data[1]}°")
-        time.sleep(0.1)
