@@ -70,7 +70,7 @@ class EncoderInterface:
         """
 
         discovered_ports = self._serial_interface.scan_ports()
-        response = {}
+        response = {"com_port": "", "version": "", "status": "not_connected"}
         # Test all ports if encoder connected
         for com_port in discovered_ports:
             connection_status = self._serial_interface.connect_port(com_port['port'])

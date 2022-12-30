@@ -30,7 +30,7 @@ class EncoderControlTask(QObject):
         if response != -1:
             self.encoder_info_signal.emit(response)
         else:
-            self.encoder_info_signal.emit(-1)
+            self.encoder_info_signal.emit(response)
 
     def disconnect_encoder(self, val):
         self.interface.disconnect_interface()
