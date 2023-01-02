@@ -1,0 +1,1 @@
+from software_engineer_assignment.__main__ import app

@@ -4,7 +4,7 @@
     Desc: Encoder interface
 """
 
-from serial_interface import SerialInterface
+from software_engineer_assignment.serial_interface import SerialInterface
 
 class EncoderInterface:
     """

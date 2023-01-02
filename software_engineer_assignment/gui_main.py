@@ -1,9 +1,9 @@
 import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
-from encoder_interface import EncoderInterface
-from gui_components import ValueIndicator, Label, Button, LineGraph, AlarmDisplay
-from gui_alarm_module import Alarm, AlarmLogger
+from software_engineer_assignment.encoder_interface import EncoderInterface
+from software_engineer_assignment.gui_components import ValueIndicator, Label, Button, LineGraph, AlarmDisplay
+from software_engineer_assignment.gui_alarm_module import Alarm, AlarmLogger
 
 class EncoderControlTask(QObject):
 
