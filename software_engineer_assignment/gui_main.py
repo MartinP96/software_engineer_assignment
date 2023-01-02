@@ -5,7 +5,7 @@
 """
 
 import datetime
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
 from software_engineer_assignment.encoder_interface import EncoderInterface
 from software_engineer_assignment.gui_components import ValueIndicator, Label, Button, LineGraph, AlarmDisplay
@@ -14,15 +14,20 @@ from software_engineer_assignment.gui_alarm_module import Alarm, AlarmLogger
 
 class EncoderControlTask(QObject):
     """
-    EncoderControlTask class for creating seperate python thread for collection data from the encoder
+    EncoderControlTask class for creating seperate python thread for collection data
+    from the encoder
 
     Args: /
 
     Attributes:
-        encoder_connection_signal(pyqtSignal [int]) - signal for sending connection status to the main thread
-        encoder_info_signal(pyqtSignal [dict]) - signal for sending connection information to the main thread
-        encoder_data_signal(pyqtSignal [tuple]) - signal for sending measurement data to the main thread
-        encoder_stop_reading(pyqtSignal [int]) - signal for sending stop signal to the main thread
+        encoder_connection_signal(pyqtSignal [int]) - signal for sending connection status
+        to the main thread
+        encoder_info_signal(pyqtSignal [dict]) - signal for sending connection information
+        to the main thread
+        encoder_data_signal(pyqtSignal [tuple]) - signal for sending measurement data
+        to the main thread
+        encoder_stop_reading(pyqtSignal [int]) - signal for sending stop signal
+        to the main thread
         interface(EncoderInterface) - object for encoder interface
         poller(QTimer) - PyQt timer for pooling measreuement while loop
     """
@@ -32,7 +37,7 @@ class EncoderControlTask(QObject):
     encoder_stop_reading = pyqtSignal(int)
 
     def __init__(self):
-        super(EncoderControlTask, self).__init__()
+        super().__init__()
 
         self.interface = EncoderInterface(64, 16, 19)
         self.poller = QTimer(self)
@@ -88,10 +93,14 @@ class UiMainWindow(QObject):
     Args: /
 
     Attributes:
-        encoder_connect_signal(pyqtSignal [int]) - signal for sending connect cmd to the encoder thread
-        encoder_disconnect_signal(pyqtSignal [int]) - signal for sending disconnect cmd to the encoder thread
-        encoder_enable_signal(pyqtSignal [int]) - signal for sending enable cmd to encoder thread
-        encoder_disable_signal(pyqtSignal [int]) - signal for sending disable cmd to encoder thread
+        encoder_connect_signal(pyqtSignal [int]) - signal for sending connect cmd
+        to the encoder thread
+        encoder_disconnect_signal(pyqtSignal [int]) - signal for sending disconnect cmd
+        to the encoder thread
+        encoder_enable_signal(pyqtSignal [int]) - signal for sending enable cmd
+        to encoder thread
+        encoder_disable_signal(pyqtSignal [int]) - signal for sending disable cmd
+        to encoder thread
         centralwidget(QWidget) - main widget of UI
         mt_pos_label(Label) - MT position label for the indicator
         mt_pos_indicator(ValueIndicator) - MT position indicator
@@ -107,7 +116,8 @@ class UiMainWindow(QObject):
         disconnect_button(Button) - Encoder disconnect button
         position_plot(LineGraph) - Measurements graph
         alarm_display(AlarmDisplay) - Display for encoder alarms
-        alarm_logger(AlarmLogger) - Alarm logger object for logging alarms in to txt file
+        alarm_logger(AlarmLogger) - Alarm logger object for logging alarms
+        in to txt file
         alarm_error(Alarm) - Encoder Error alarm
         alarm_warning(Alarm) - Encoder Warning alarm
     """
@@ -119,7 +129,7 @@ class UiMainWindow(QObject):
 
     # Constructor
     def __init__(self, main_window):
-        super(UiMainWindow, self).__init__()
+        super().__init__()
         main_window.setObjectName("main_window")
         main_window.setFixedSize(935, 698)
         main_window.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -127,31 +137,66 @@ class UiMainWindow(QObject):
         self.centralwidget.setObjectName("centralwidget")
 
         # Value Indicator Objects
-        self.mt_pos_label = Label("mt_pos_label", self.centralwidget, (30, 600, 231, 31), 14, "Multi Turn Position:")
-        self.mt_pos_indicator = ValueIndicator("mt_pos_indicator", self.centralwidget, (30, 640, 231, 41), 14)
-        self.st_pos_label = Label("st_pos_label", self.centralwidget, (280, 600, 231, 31), 14, "Single Turn Position:")
-        self.st_pos_indicator = ValueIndicator("st_pos_indicator", self.centralwidget, (280, 640, 231, 41), 14)
-        self.com_port_label = Label("com_port_label", self.centralwidget, (390, 10, 101, 31), 12, "COM Port:")
-        self.com_port_indicator = ValueIndicator("com_port_indicator", self.centralwidget, (490, 10, 91, 31), 12)
-        self.device_label = Label("device_label", self.centralwidget, (590, 10, 71, 31), 12, "Device:")
-        self.device_indicator = ValueIndicator("device_indicator", self.centralwidget, (660, 10, 121, 31), 9)
+        self.mt_pos_label = Label("mt_pos_label", self.centralwidget,
+                                  (30, 600, 231, 31), 14,
+                                  "Multi Turn Position:")
+
+        self.mt_pos_indicator = ValueIndicator("mt_pos_indicator", self.centralwidget,
+                                               (30, 640, 231, 41), 14)
+
+        self.st_pos_label = Label("st_pos_label", self.centralwidget,
+                                  (280, 600, 231, 31), 14,
+                                  "Single Turn Position:")
+
+        self.st_pos_indicator = ValueIndicator("st_pos_indicator", self.centralwidget,
+                                               (280, 640, 231, 41), 14)
+
+        self.com_port_label = Label("com_port_label", self.centralwidget,
+                                    (390, 10, 101, 31), 12,
+                                    "COM Port:")
+
+        self.com_port_indicator = ValueIndicator("com_port_indicator", self.centralwidget,
+                                                 (490, 10, 91, 31), 12)
+
+        self.device_label = Label("device_label", self.centralwidget,
+                                  (590, 10, 71, 31), 12,
+                                  "Device:")
+
+        self.device_indicator = ValueIndicator("device_indicator", self.centralwidget,
+                                               (660, 10, 121, 31), 9)
 
         # Button objects
-        self.enable_encoder_button = Button("enable_button", self.centralwidget, (20, 60, 131, 28), "ENABLE ENCODER", self.enable_encoder, True, False)
-        self.disable_encoder_button = Button("disable_button", self.centralwidget, (160, 60, 131, 28), "DISABLE ENCODER", self.disable_encoder, False, False)
-        self.connect_button = Button("connect_button", self.centralwidget, (20, 20, 131, 28), "CONNECT", self.connect_to_encoder, True)
-        self.disconnect_button = Button("disconnect_button", self.centralwidget, (160, 20, 131, 28), "DISCONNECT", self.disconnect_encoder, False)
+        self.enable_encoder_button = Button("enable_button", self.centralwidget,
+                                            (20, 60, 131, 28), "ENABLE ENCODER",
+                                            self.enable_encoder, True, False)
+
+        self.disable_encoder_button = Button("disable_button", self.centralwidget,
+                                             (160, 60, 131, 28), "DISABLE ENCODER",
+                                             self.disable_encoder, False, False)
+
+        self.connect_button = Button("connect_button", self.centralwidget,
+                                     (20, 20, 131, 28), "CONNECT",
+                                     self.connect_to_encoder, True)
+
+        self.disconnect_button = Button("disconnect_button", self.centralwidget,
+                                        (160, 20, 131, 28), "DISCONNECT",
+                                        self.disconnect_encoder, False)
 
         # Graph object
-        self.position_plot = LineGraph(main_window, "Position", 0.1, 1000, "Time [s]", "Position [°]", (20, 115-20, 680, 480))
+        self.position_plot = LineGraph(main_window, "Position", 0.1, 1000,
+                                       "Time [s]", "Position [°]", (20, 115-20, 680, 480))
 
         # Alarm Display
-        self.alarm_display = AlarmDisplay("alarm_display", self.centralwidget, (720, 145-20, 191, 405))
+        self.alarm_display = AlarmDisplay("alarm_display", self.centralwidget,
+                                          (720, 145-20, 191, 405))
 
         # Alarms
         self.alarm_logger = AlarmLogger("alarm_log.txt")
-        self.alarm_error = Alarm(alarm_name="Encoder Error", inverted=True, trigger_mode="rising")
-        self.alarm_warning = Alarm(alarm_name="Encoder Warning", inverted=True, trigger_mode="rising")
+        self.alarm_error = Alarm(alarm_name="Encoder Error", inverted=True,
+                                 trigger_mode="rising")
+
+        self.alarm_warning = Alarm(alarm_name="Encoder Warning", inverted=True,
+                                   trigger_mode="rising")
 
         # Main window
         main_window.setCentralWidget(self.centralwidget)

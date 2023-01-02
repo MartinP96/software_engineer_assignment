@@ -35,7 +35,8 @@ class Alarm:
 
     def monitor_alarm(self, input_val: int):
         """
-        Monitor input of the alarm and return alarm output value according the configuration (rising edge, inverted...)
+        Monitor input of the alarm and return alarm output value
+        according the configuration (rising edge, inverted...)
         args: input_val(int) - input alarm
         return: output "filtered" alarm value according the configuration
         """
@@ -66,6 +67,7 @@ class Alarm:
 
         return alarm_out
 
+
 class AlarmLogger:
     """
     Alarm Logger class for logging the input alarms
@@ -75,14 +77,9 @@ class AlarmLogger:
 
     Attributes:
         log_file_path(str): Path to the alarm log file
-        log_file(obj): File python object
     """
     def __init__(self, log_path: str):
         self.log_file_path = log_path
-        self.log_file = open(log_path, 'w')
-
-    def __del__(self):
-        self.log_file.close()
 
     def log_alarm(self, alarm: Alarm):
         """
@@ -91,6 +88,9 @@ class AlarmLogger:
         return: /
         """
         if alarm.alarm_out == 1:
-            #Alarm string
-            alm_str = f"{alarm.alarm_name} @ {datetime.datetime.now()}\n"
-            self.log_file.write(alm_str)
+            try:
+                with open(self.log_file_path, 'w') as file:
+                    alm_str = f"{alarm.alarm_name} @ {datetime.datetime.now()}\n"
+                    file.write(alm_str)
+            except FileNotFoundError:
+                print("Log file not found")

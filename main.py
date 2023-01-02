@@ -1,4 +1,8 @@
-# Fle name: main.py
+"""
+    File name: main.py
+    Date: 02.01.2023
+    Desc: gui_alarm_module.py
+"""
 
 from software_engineer_assignment import app
 

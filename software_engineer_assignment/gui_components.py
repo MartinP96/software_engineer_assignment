@@ -21,8 +21,9 @@ class ValueIndicator(QtWidgets.QLabel):
     Attributes:
         object_name(str) - name of the gui object
     """
-    def __init__(self, object_name, parent, dimensions, font_size, text_aligment=QtCore.Qt.AlignCenter):
-        super(ValueIndicator, self).__init__(parent)
+    def __init__(self, object_name, parent, dimensions, font_size,
+                 text_aligment=QtCore.Qt.AlignCenter):
+        super().__init__(parent)
         self.object_name = object_name
         self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
         font = QtGui.QFont()
@@ -45,7 +46,13 @@ class ValueIndicator(QtWidgets.QLabel):
 
     # Methods
     def set_indicator_value(self, value):
+        """
+        Set value of the indicator
+        args: value
+        return: /
+        """
         self.setText(value)
+
 
 class Label(QtWidgets.QLabel):
     """
@@ -62,7 +69,7 @@ class Label(QtWidgets.QLabel):
         object_name(str) - name of the gui object
     """
     def __init__(self, object_name, parent, dimensions, font_size, label_text):
-        super(Label, self).__init__(parent)
+        super().__init__(parent)
         self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
         font = QtGui.QFont()
         font.setPointSize(font_size)
@@ -83,8 +90,9 @@ class Button(QtWidgets.QPushButton):
         enabled(bool) - Button enabled when true
         visibility(bool) - Button visible when true
     """
-    def __init__(self, object_name, parent, dimensions, text, method, enabled=True, visibility=True):
-        super(Button, self).__init__(parent)
+    def __init__(self, object_name, parent, dimensions, text, method,
+                 enabled=True, visibility=True):
+        super().__init__(parent)
         self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
         self.setObjectName(object_name)
         self.setText(text)
@@ -113,8 +121,9 @@ class LineGraph(pyqtgraph.PlotWidget):
         x_data(list) - x axis (data point) buffer
         y_data(list) - y axis (data point) buffer
     """
-    def __init__(self, parent, title="", sampling_time=1, buffer_size=100, xlabel="", ylabel="", dimensions=(0, 0, 10, 10), pen_color=(255, 0, 0)):
-        super(LineGraph, self).__init__(parent)
+    def __init__(self, parent, title="", sampling_time=1, buffer_size=100, xlabel="",
+                 ylabel="", dimensions=(0, 0, 10, 10), pen_color=(255, 0, 0)):
+        super().__init__(parent)
 
         self.sampling_time = sampling_time
         self.buffer_size = buffer_size
@@ -138,14 +147,17 @@ class LineGraph(pyqtgraph.PlotWidget):
         return: /
         """
         if len(self.x_data[1:]) >= self.buffer_size:
-            self.x_data = self.x_data[1:]  # Remove the first y element.
-            self.x_data.append(self.x_data[-1] + self.sampling_time)  # Add a new value 1 higher than the last.
+            # Remove the first y element.
+            self.x_data = self.x_data[1:]
+            # Add a new value 1 higher than the last.
+            self.x_data.append(self.x_data[-1] + self.sampling_time)
             self.y_data = self.y_data[1:]  # Remove the first
             self.y_data.append(new_y_value)  # Add a new random value.
         else:
-            self.x_data.append(self.x_data[-1] + self.sampling_time)  # Add a new value 1 higher than the last.
-            self.y_data.append(new_y_value)  # Add a new random value.
-        self.data_line.setData(self.x_data, self.y_data)  # Update the data.
+            # Add a new value 1 higher than the last
+            self.x_data.append(self.x_data[-1] + self.sampling_time)
+            self.y_data.append(new_y_value)
+        self.data_line.setData(self.x_data, self.y_data)
 
     def clear_graph(self):
         self.data_line.clear()
@@ -160,7 +172,7 @@ class AlarmDisplay(QtWidgets.QTextBrowser):
         dimensions(tuple) - dimensions of the Gui element: 0 - len, 1 - hight, 2 - x pos, 3 - y pos
     """
     def __init__(self, object_name, parent, dimensions):
-        super(AlarmDisplay, self).__init__(parent)
+        super().__init__(parent)
         # Alarm Display
         self.setGeometry(QtCore.QRect(dimensions[0], dimensions[1], dimensions[2], dimensions[3]))
         self.setObjectName(object_name)
