@@ -8,11 +8,15 @@
 + Purpose of test assignment is 
 to develeop a simple GUI application for connecting and gathering data from encoder device.
 
+
 ### Dependencies
 + serial
 + PyQt5
 + pyqtgraph
 
+### Installation
+
+pip install software-engineer-assignment-final
 
 ### Modules
 + main_app.py - contains main method for the application
