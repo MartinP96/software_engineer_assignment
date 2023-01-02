@@ -4,7 +4,7 @@
     Desc: Encoder interface
 """
 
-from serial_interface import SerialInterface
+from software_engineer_assignment.serial_interface import SerialInterface
 
 class EncoderInterface:
     """
@@ -74,14 +74,15 @@ class EncoderInterface:
         # Test all ports if encoder connected
         for com_port in discovered_ports:
             connection_status = self._serial_interface.connect_port(com_port['port'])
-            response = {"com_port":"", "version": "", "status": "not_connected"}
+            response = {"com_port": "", "version": "", "status": "not_connected"}
             if connection_status == 1:
                 # Test if encoder is connected
                 version = self._serial_interface.write_command(b'v')
                 if version == b'' or version == -1:
                     self._serial_interface.disconnect_port()
                 else:
-                    self.interface_version = str(version).replace("b'", "").replace(chr(92), "").replace("r'", "")
+                    self.interface_version = str(version).replace("b'", "").replace(chr(92), "").\
+                        replace("r'", "")
                     self.serial_port_num = com_port['port']
                     print(f"Connected to encoder: {self.interface_version} on Port: {self.serial_port_num}")
                     response["com_port"] = com_port['port']
@@ -106,18 +107,17 @@ class EncoderInterface:
             warning_bit_offset = st_bit_offset - 2
 
             # Extract position bits MT + ST
-            mt = self._extract_bits(biss_data, self._mt_num_of_bits, mt_bit_offset)
-            mt = self._unsigned_to_signed_val(mt)
-            st = self._extract_bits(biss_data, self._st_num_of_bits, st_bit_offset)
-            st_deg = st * (360 / (2 ** self._st_num_of_bits)) + (360 * mt)
+            mt_pos = self._extract_bits(biss_data, self._mt_num_of_bits, mt_bit_offset)
+            mt_pos = self._unsigned_to_signed_val(mt_pos, self._mt_num_of_bits)
+            st_pos = self._extract_bits(biss_data, self._st_num_of_bits, st_bit_offset)
+            st_deg_pos = st_pos * (360 / (2 ** self._st_num_of_bits)) + (360 * mt_pos)
 
             # Extract Error and Warning bits
             error = self._extract_bits(biss_data, 1, error_bit_offset)
             warning = self._extract_bits(biss_data, 1, warning_bit_offset)
 
-            return mt, st_deg, error, warning
-        else:
-            return -1
+            return mt_pos, st_deg_pos, error, warning
+        return -1
 
     def _read_biss_data(self):
         """
@@ -128,7 +128,8 @@ class EncoderInterface:
         response = self._serial_interface.write_command(b'4')
         biss_data = -1
         if response != -1:
-            biss_data = "0x" + str(response).replace("b'", "").replace(chr(92), "").replace("r'", "")
+            biss_data = "0x" + str(response).replace("b'", "").replace(chr(92), "")\
+                .replace("r'", "")
             biss_data = int(biss_data, 16)
         return biss_data
 
@@ -143,15 +144,16 @@ class EncoderInterface:
         """
         return ((1 << num_of_bits) - 1) & (in_value >> (position - 1))
 
-    def _unsigned_to_signed_val(self, val_in):
+    def _unsigned_to_signed_val(self, val_in, num_of_bits):
         """
         Convert unsigned value to signed value - not the best solution, but it works for now.
         args:
             val_in(int): input value
-
+            num_of_bits(int): number of bits in input value
         return: signed value
         """
+        max_val = 2**num_of_bits
         val_out = val_in
-        if val_in > 65536 / 2:
-            val_out = val_in - 65536
+        if val_in > max_val / 2:
+            val_out = val_in - max_val
         return val_out

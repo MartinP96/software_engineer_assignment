@@ -13,12 +13,14 @@ class SerialInterface:
     SerialInterface class for serial communication via virtual com port.
 
     Args:
-        response_delay_time(float): delay time [in seconds] when between writing and reading data from serial port
+        response_delay_time(float): delay time [in seconds] when between writing and
+        reading data from serial port
 
     Attributes:
         serial_port_num(str): number of connected serial port
         _serial_com (serial): serial com object
-        _respone_delay_time (float): delay time [in seconds] when between writing and reading data from serial port
+        _respone_delay_time (float): delay time [in seconds] when between writing
+        and reading data from serial port
     """
     # Constructor
     def __init__(self, response_delay_time):

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "software-engineer-assignment"
+version = "1.0.0"
+description = "Software Engineering assignment for job interview."
+authors = ["MartinP96 <porenta.martin@gmail.com>"]
+readme = "README.md"
+packages = [{include = "software_engineer_assignment"}]
+homepage = "https://github.com/MartinP96/software_engineer_assignment"
+repository = "https://github.com/MartinP96/software_engineer_assignment"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyserial = "^3.5"
+pyqt5 = "^5.15.7"
+pyqtgraph = "^0.13.1"
+
+
+[tool.poetry.group.dev.dependencies]
+radon = "^5.1.0"
+pylint = "^2.15.9"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
