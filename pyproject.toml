@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "software-engineer-assignment"
+name = "software-engineer-assignment-final"
 version = "1.0.0"
 description = "Software Engineering assignment for job interview."
 authors = ["MartinP96 <porenta.martin@gmail.com>"]
