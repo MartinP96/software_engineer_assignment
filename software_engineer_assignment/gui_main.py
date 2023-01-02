@@ -1,3 +1,9 @@
+"""
+    File name: gui_main.py
+    Date: 02.01.2023
+    Desc: gui_main.py
+"""
+
 import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
@@ -5,8 +11,21 @@ from software_engineer_assignment.encoder_interface import EncoderInterface
 from software_engineer_assignment.gui_components import ValueIndicator, Label, Button, LineGraph, AlarmDisplay
 from software_engineer_assignment.gui_alarm_module import Alarm, AlarmLogger
 
-class EncoderControlTask(QObject):
 
+class EncoderControlTask(QObject):
+    """
+    EncoderControlTask class for creating seperate python thread for collection data from the encoder
+
+    Args: /
+
+    Attributes:
+        encoder_connection_signal(pyqtSignal [int]) - signal for sending connection status to the main thread
+        encoder_info_signal(pyqtSignal [dict]) - signal for sending connection information to the main thread
+        encoder_data_signal(pyqtSignal [tuple]) - signal for sending measurement data to the main thread
+        encoder_stop_reading(pyqtSignal [int]) - signal for sending stop signal to the main thread
+        interface(EncoderInterface) - object for encoder interface
+        poller(QTimer) - PyQt timer for pooling measreuement while loop
+    """
     encoder_connection_signal = pyqtSignal(int)
     encoder_info_signal = pyqtSignal(dict)
     encoder_data_signal = pyqtSignal(tuple)
@@ -20,26 +39,78 @@ class EncoderControlTask(QObject):
         self.poller.timeout.connect(self.read_data)
 
     def enable_encoder(self, val):
+        """
+        Enable encoder data collection (hardcoded sampling time of 0.1 s) - #possible improvement#
+        args: /
+        return: /
+        """
         self.poller.start(100)
 
     def disable_encoder(self):
+        """
+        Disable encoder data collection
+        args: /
+        return: /
+        """
         self.poller.stop()
 
     def connect_encoder(self, val):
+        """
+        Connects to the encoder on com port
+        args: /
+        return: /
+        """
         response = self.interface.connect_interface()
-        if response != -1:
-            self.encoder_info_signal.emit(response)
-        else:
-            self.encoder_info_signal.emit(response)
+        self.encoder_info_signal.emit(response)
 
     def disconnect_encoder(self, val):
+        """
+        Disconnect from the encoder
+        args: /
+        return: /
+        """
         self.interface.disconnect_interface()
 
     def read_data(self):
+        """
+        Read encoder data
+        args: /
+        return: /
+        """
         data = self.interface.read_encoder_data()
         self.encoder_data_signal.emit(data)
 
+
 class UiMainWindow(QObject):
+    """
+    Main class for creating User Interface of the application - runs in main thread of the Qt App.
+
+    Args: /
+
+    Attributes:
+        encoder_connect_signal(pyqtSignal [int]) - signal for sending connect cmd to the encoder thread
+        encoder_disconnect_signal(pyqtSignal [int]) - signal for sending disconnect cmd to the encoder thread
+        encoder_enable_signal(pyqtSignal [int]) - signal for sending enable cmd to encoder thread
+        encoder_disable_signal(pyqtSignal [int]) - signal for sending disable cmd to encoder thread
+        centralwidget(QWidget) - main widget of UI
+        mt_pos_label(Label) - MT position label for the indicator
+        mt_pos_indicator(ValueIndicator) - MT position indicator
+        st_pos_label(Label) - ST position label for the indicator
+        st_pos_indicator(ValueIndicator) - ST position indicator
+        com_port_label(Label) - Com port indicator label
+        com_port_indicator(ValueIndicator) - Com port indicator
+        device_label(Label) - Device indicator label
+        device_indicator(ValueIndicator) - Device indicator
+        enable_encoder_button(Button) - Encoder enable button
+        disable_encoder_button(Button) - Enable encoder button
+        connect_button(Button) - Encoder connect button
+        disconnect_button(Button) - Encoder disconnect button
+        position_plot(LineGraph) - Measurements graph
+        alarm_display(AlarmDisplay) - Display for encoder alarms
+        alarm_logger(AlarmLogger) - Alarm logger object for logging alarms in to txt file
+        alarm_error(Alarm) - Encoder Error alarm
+        alarm_warning(Alarm) - Encoder Warning alarm
+    """
 
     encoder_connect_signal = pyqtSignal(int)
     encoder_disconnect_signal = pyqtSignal(int)
@@ -91,7 +162,11 @@ class UiMainWindow(QObject):
 
     # Methods
     def run_encoder_task(self):
-
+        """
+        Starts encoder data collection thread
+        args: /
+        return: /
+        """
         self.thread = QThread()
         self.worker = EncoderControlTask()
         self.worker.moveToThread(self.thread)
@@ -106,11 +181,21 @@ class UiMainWindow(QObject):
         self.thread.start()
 
     def connect_to_encoder(self):
+        """
+        Method for connecting to the encoder
+        args: /
+        return: /
+        """
         self.connect_button.setEnabled(False)
         self.disconnect_button.setEnabled(True)
         self.encoder_connect_signal.emit(1)
 
     def disconnect_encoder(self):
+        """
+        Method for disconnecting from the encoder
+        args: /
+        return: /
+        """
         self.connect_button.setEnabled(True)
         self.disconnect_button.setEnabled(False)
         self.encoder_disconnect_signal.emit(1)
@@ -120,12 +205,22 @@ class UiMainWindow(QObject):
         self.disable_encoder_button.setVisible(False)
 
     def enable_encoder(self):
+        """
+        Method for enabling the encoder
+        args: /
+        return: /
+        """
         self.enable_encoder_button.setEnabled(False)
         self.disable_encoder_button.setEnabled(True)
         self.disconnect_button.setEnabled(False)
         self.encoder_enable_signal.emit(1)
 
     def disable_encoder(self):
+        """
+        Method for disabling the encoder
+        args: /
+        return: /
+        """
         self.enable_encoder_button.setEnabled(True)
         self.disable_encoder_button.setEnabled(False)
         self.disconnect_button.setEnabled(True)
@@ -134,6 +229,11 @@ class UiMainWindow(QObject):
         self.encoder_disable_signal.emit(1)
 
     def display_encoder_connection_status(self, data):
+        """
+        Method for receiving and displaying encoder connection status
+        args: data(dict) - received data from the encoder thread
+        return: /
+        """
         if data["status"] == "connected":
             self.com_port_indicator.set_indicator_value(data["com_port"])
             self.device_indicator.set_indicator_value(data["version"])
@@ -148,7 +248,11 @@ class UiMainWindow(QObject):
             self.disconnect_button.setEnabled(False)
 
     def get_encoder_data(self, data):
-
+        """
+         Method for receiving measurement data from encoder thread
+         args: data(dict) - received data from the encoder thread
+         return: /
+         """
         error = self.alarm_error.monitor_alarm(data[2])
         warning = self.alarm_warning.monitor_alarm(data[3])
 
