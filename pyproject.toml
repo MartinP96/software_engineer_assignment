@@ -18,6 +18,7 @@ pyqtgraph = "^0.13.1"
 [tool.poetry.group.dev.dependencies]
 radon = "^5.1.0"
 pylint = "^2.15.9"
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]

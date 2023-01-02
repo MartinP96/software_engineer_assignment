@@ -74,7 +74,7 @@ class EncoderInterface:
         # Test all ports if encoder connected
         for com_port in discovered_ports:
             connection_status = self._serial_interface.connect_port(com_port['port'])
-            response = {"com_port":"", "version": "", "status": "not_connected"}
+            response = {"com_port": "", "version": "", "status": "not_connected"}
             if connection_status == 1:
                 # Test if encoder is connected
                 version = self._serial_interface.write_command(b'v')
@@ -108,7 +108,7 @@ class EncoderInterface:
 
             # Extract position bits MT + ST
             mt_pos = self._extract_bits(biss_data, self._mt_num_of_bits, mt_bit_offset)
-            mt_pos = self._unsigned_to_signed_val(mt_pos)
+            mt_pos = self._unsigned_to_signed_val(mt_pos, self._mt_num_of_bits)
             st_pos = self._extract_bits(biss_data, self._st_num_of_bits, st_bit_offset)
             st_deg_pos = st_pos * (360 / (2 ** self._st_num_of_bits)) + (360 * mt_pos)
 
@@ -144,15 +144,16 @@ class EncoderInterface:
         """
         return ((1 << num_of_bits) - 1) & (in_value >> (position - 1))
 
-    def _unsigned_to_signed_val(self, val_in):
+    def _unsigned_to_signed_val(self, val_in, num_of_bits):
         """
         Convert unsigned value to signed value - not the best solution, but it works for now.
         args:
             val_in(int): input value
-
+            num_of_bits(int): number of bits in input value
         return: signed value
         """
+        max_val = 2**num_of_bits
         val_out = val_in
-        if val_in > 65536 / 2:
-            val_out = val_in - 65536
+        if val_in > max_val / 2:
+            val_out = val_in - max_val
         return val_out
