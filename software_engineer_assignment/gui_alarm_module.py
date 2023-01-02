@@ -89,7 +89,7 @@ class AlarmLogger:
         """
         if alarm.alarm_out == 1:
             try:
-                with open(self.log_file_path, 'w') as file:
+                with open(self.log_file_path, 'a') as file:
                     alm_str = f"{alarm.alarm_name} @ {datetime.datetime.now()}\n"
                     file.write(alm_str)
             except FileNotFoundError:
