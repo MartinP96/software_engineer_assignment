@@ -7,7 +7,8 @@
 import datetime
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QTimer
-from software_engineer_assignment.encoder_interface import EncoderInterface
+from software_engineer_assignment.encoder_interface import EncoderInterfaceE201
+from software_engineer_assignment.encoder_interface import SerialInterface
 from software_engineer_assignment.gui_components import ValueIndicator, Label, Button, LineGraph, AlarmDisplay
 from software_engineer_assignment.gui_alarm_module import Alarm, AlarmLogger
 
@@ -39,7 +40,7 @@ class EncoderControlTask(QObject):
     def __init__(self):
         super().__init__()
 
-        self.interface = EncoderInterface(64, 16, 19)
+        self.interface = EncoderInterfaceE201(SerialInterface(0.01), 64, 16, 19)
         self.poller = QTimer(self)
         self.poller.timeout.connect(self.read_data)
 

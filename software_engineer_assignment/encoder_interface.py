@@ -4,9 +4,35 @@
     Desc: Encoder interface
 """
 
+from abc import ABC, abstractmethod
 from software_engineer_assignment.serial_interface import SerialInterface
 
-class EncoderInterface:
+class EncoderInterface(ABC):
+
+    def __init__(self, serial_interface):
+        self._serial_interface = serial_interface
+
+    @abstractmethod
+    def disconnect_interface(self):
+        pass
+
+    @abstractmethod
+    def enable_encoder(self):
+        pass
+
+    @abstractmethod
+    def disable_encoder(self):
+        pass
+
+    @abstractmethod
+    def connect_interface(self):
+        pass
+
+    @abstractmethod
+    def read_encoder_data(self):
+        pass
+
+class EncoderInterfaceE201(EncoderInterface):
     """
     EncoderInterface class used for communication and control of encoder
 
@@ -25,9 +51,8 @@ class EncoderInterface:
     """
 
     # Constructor
-    def __init__(self, biss_packet_len, mt_bit_len, st_bit_len):
-
-        self._serial_interface = SerialInterface(0.01)
+    def __init__(self, serial_interface, biss_packet_len, mt_bit_len, st_bit_len):
+        super().__init__(serial_interface)
 
         self.serial_port_num = ""
         self.interface_version = ""
